@@ -1,0 +1,18 @@
+# 强化学习环境
+gymnasium>=0.29.0          # 新版 Gym 接口
+gymnasium[classic-control] # 包含 CartPole 等经典环境
+
+# 数值 / 框架
+numpy>=1.24
+# torch>=2.0                 # DQN/A2C/PPO 都可用
+
+# PPO（Stable-Baselines3）
+stable-baselines3[extra]>=2.0
+
+# 可视化 / 视频
+opencv-python>=4.7         # 可选，VideoRecorder 用不到
+imageio[ffmpeg]>=2.31      # 录制 & 保存 mp4
+matplotlib>=3.7            # 画训练曲线（utils/plot.py 可能用到）
+
+# 开发便利
+tqdm>=4.65                 # 进度条
