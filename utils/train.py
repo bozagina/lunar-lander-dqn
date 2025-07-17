@@ -19,12 +19,17 @@ def train(agent, env_name="LunarLander-v3", episodes=600):
         done = False
 
         while not done:
+            
+            # 0715 修改action的返回为一个tensor变量
             action = agent.select_action(obs)
+            # print(f"action type: {type(action)}, action: {action}")
+            if type(action) == torch.Tensor:
+                action = action.item()
             next_obs, reward, terminated, truncated, _ = env.step(action)
             done = terminated or truncated
 
             # Clip reward
-            reward = np.clip(reward, -1, 1)
+            # reward = np.clip(reward, -1, 1)
 
             agent.update(obs, action, reward, next_obs, done)
             obs = next_obs

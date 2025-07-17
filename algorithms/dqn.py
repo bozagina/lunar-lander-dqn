@@ -39,12 +39,13 @@ class DQN(nn.Module):
 
 
 class DQNAgent:
-    def __init__(self, state_dim, action_dim, lr=1e-4, gamma=0.99):
+    def __init__(self, state_dim, action_dim, action_space, lr=1e-4, gamma=0.99):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.q_net = DQN(state_dim, action_dim).to(self.device)
         self.target_net = DQN(state_dim, action_dim).to(self.device)
         self.target_net.load_state_dict(self.q_net.state_dict())
         self.target_net.eval()
+        self.action_space = action_space
 
         self.optimizer = optim.AdamW(self.q_net.parameters(), lr=lr)
         self.gamma = gamma
@@ -65,8 +66,8 @@ class DQNAgent:
         # 损失函数和训练计数器
         self.criterion = nn.SmoothL1Loss()
         self.train_step = 0
-        self.update_freq = 4  # 每 4 步更新一次目标网络
-
+        # self.update_freq = 4  # 每 4 步更新一次目标网络
+        self.update_freq = 1 # 每一步都更新一次目标网络
     def set_eval(self):
         """进入评估模式，关闭 epsilon 探索"""
         self.evaluate = True
@@ -75,7 +76,10 @@ class DQNAgent:
     def select_action(self, obs):
         self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
         if not self.evaluate and np.random.rand() < self.epsilon:
-            return np.random.randint(2)
+            # 0715 将动作选择修改为在action_space范围内随机选择,而不是使用np.random.randint
+            return torch.tensor(
+                [[self.action_space.sample()]], dtype=torch.long, device=self.device
+            )
         else:
             obs_tensor = torch.FloatTensor(obs).unsqueeze(0).to(self.device)
             with torch.no_grad():
